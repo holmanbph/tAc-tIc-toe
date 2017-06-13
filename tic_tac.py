@@ -1,5 +1,6 @@
 # Tic tac to
 import subprocess
+import random
 
 __author__ = "Brett Holman"
 
@@ -9,8 +10,8 @@ class Game(object):
 
     def __init__(self):
         self.Board=[[' ' for i in range(3)] for i in range(3)]
-
-
+        self.player_turn = 'X'
+        self.default_player='2'
     def print_grid(self):
         """Clears out the screen and Prints out the formatted grid."""
         res = subprocess.check_output(['clear'])
@@ -27,10 +28,20 @@ class Game(object):
         print '\n\n'
 
 
-    def get_input(self, user):
-        user_input = str(raw_input('{}\'s Turn: '.format( user ))).strip().lower()
-        self.interpret_input(user_input, user)
-        return user_input
+    def get_input(self, user, computer):
+        if computer == None:
+            user_input = str(raw_input('{}\'s Turn: '.format( user ))).strip().lower()
+            self.interpret_input(user_input, user)
+            return user_input
+        # Computer plays the 'O's
+        else:
+            if user == 'X':
+                user_input = str(raw_input('{}\'s Turn: '.format( user ))).strip().lower()
+                self.interpret_input(user_input, user)
+                return user_input
+            else:
+                return computer.turn(self.Board)
+
 
     def write_piece(self, y, x, user):
 
@@ -113,32 +124,64 @@ class Game(object):
         return [None]
 
 
-    def game_play(self):
-        player_turn = 'X'
+    def game_play(self, computer):
+        """This describes the play of the game"""
+        # Setup
 
-        check = self.check_board(player_turn)[0]
+
+
+        # Turns
         while(True):
             self.print_grid()
-            self.get_input(player_turn)
-            player_turn = 'O' if player_turn=='X' else 'X'
-            check = self.check_board(player_turn)[0]
+
+            self.get_input(self.player_turn, computer)
+            self.player_turn = 'O' if self.player_turn=='X' else 'X'
+            check = self.check_board(self.player_turn)[0]
 
             if check == 'winner':
                 self.print_grid()
-                print 'Player {} wins!!!\n\n'.format(player_turn)
+                print 'Player {} wins!!!\n\n'.format(self.player_turn)
                 return
 
     def play(self):
+        """This function defines the game play of the tic-tac-toe game.  This includes game setup and teardown"""
         while True:
             try:
-                self.game_play()
+                # Human or Machine?
+                response = raw_input("\n\nWhat kind of game would you like to play?[ 2 ]\n 1) 2 Player\n 2) Computer").strip()
+
+                if response =='':
+                    response = self.default_player
+                # UI Error Handling
+                if response != '1' and response != '2':
+                    print 'That is not an acceptable input'
+                    self.play()# I wonder if this "recursive goto" is very pythonic?
+                    return
+                computer = AI() if (response=='2') else None
+                self.game_play(computer)
                 response = raw_input("Play again? [Y/n]").strip().lower()
                 if response == 'n' or response == 'no':
                     return
+
+            # Not very pythonic
             except EOFError:
                 print 'Have a nice day!\n\n'
                 self.print_grid()
                 exit()
+
+
+class AI(object):
+    def __init__(self):
+        #print "I'll be back."
+        random.seed()
+        self.options = [['A', 'B', 'C'], ['1','2','3']]
+
+    def turn(self, state):
+        a = int(random.random()*4)
+        b = int(random.random()*4)
+        if state[a][b] == ' ':
+            return self.options[a][b]
+        self.turn(stat)
 
 if __name__ == "__main__":
     tic_tac = Game()
