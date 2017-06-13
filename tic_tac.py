@@ -1,25 +1,59 @@
-# Tic tac to
+#!/usr/bin/env python
+
+"""The design of the game was not given much thought, I'm trying to throw something together that can be used for 'AI' experimentation. This game was not originally object oriented; there are some interesting design quirks. The goal is to allow PvP and PvComputer game modes, and to focus on learning some 'simple' AI methods (perhaps using a tool like tensorflow)?
+
+
+To play:
+    $ python tic_tac.py
+
+Dependencies:
+    -bash
+    -python 2.7.*
+    -modules: subprocess, random, time
+
+Attributes:
+    Game()
+    AI()
+
+Todo:
+    - add multiple levels of 'AI'
+        - add a random generated one that blocks the opponent if the opponent is about to win
+        - learn about tensorflow, potentially look into the monte carlo tree search algorithm
+        - allow user to select difficulty
+    - improve CLI aesthetics
+    - nxn game-play?
+    - n**3 game-play?
+    - n**n game-play?
+    - improve documentation - see google style docstring
+    - create some tests to automatically check certain functionalities
+"""
+
 import subprocess
 import random
 import time
-__author__ = "Brett Holman"
 
 
+__author__ = 'Brett Holman'
+__license__ = 'MIT'
+__copyright__ = 'Copyright (c) 2017 Brett Holman'
+__status__ = 'Prototype'
+__credits__ = ['Brett Holman']
 
 class Game(object):
-
+    ''' This game defines the game of tic tac toe. '''
     def __init__(self):
         self.Board=[[' ' for i in range(3)] for i in range(3)]
         self.player_turn = 'X'
         self.default_player='2'
+
     def print_grid(self):
         """Clears out the screen and Prints out the formatted grid."""
         res = subprocess.check_output(['clear'])
         for line in res.splitlines():
             print line
         print '\n\n'
-        print '\t     A   B   C'
-        print ''
+        print '\t     A   B   C'        # This approach v is kind of a hack.   Find a more precise way to do it.
+        print ''            # What if we were to play an nxn game of tic-tac?  nxnxn? n**n?
         print '\t1    {} | {} | {}'.format( self.Board[0][0], self.Board[0][1], self.Board[0][2])
         print '\t    -----------'
         print '\t2    {} | {} | {}'.format( self.Board[1][0], self.Board[1][1], self.Board[1][2])
@@ -29,6 +63,7 @@ class Game(object):
 
 
     def get_input(self, user, computer):
+        '''Prints input message and dispatches computer moves if necessary'''
         if computer == None:
             user_input = str(raw_input('{}\'s Turn: '.format( user ))).strip().lower()
             self.interpret_input(user_input, user, computer)
@@ -42,7 +77,7 @@ class Game(object):
 
 
     def write_piece(self, y, x, user, computer):
-
+        """Writes user input to the board or prints a message.  If the spot is taken, a recursive call to .get_input() is made """
         # check if place is taken
         if (self.Board[y][x] == ' '):
             self.Board[y][x] = user
@@ -51,12 +86,13 @@ class Game(object):
             self.get_input(user, computer)
 
     def interpret_input(self, input, user, computer):
+        """ Validates user input and calls the write_piece function if input is valid """
         if len(input)<2:
             print 'Too few characters entered.  Try again.'
-            self.get_input(user)
+            self.get_input(user, computer)
         elif len(input)>2:
             print 'Too many characters entered.  Try again.'
-            self.get_input(user)
+            self.get_input(user, computer)
         elif not set(input)<=set('abc123'):
             print 'Wrong type of character entered.  Only the characters \'abc123\' are allowed.'
             self.get_input(user, computer )
@@ -95,7 +131,7 @@ class Game(object):
             print 'Logical ERROR in self.interpret_input, LETTER case not considered'
 
     def check_board(self, player):
-
+        """ This checkes the board for winners and stalemates"""
         # Someone wins
         for i in range(3):
             # Check each column
@@ -119,8 +155,11 @@ class Game(object):
 
         # Board is full; no one wins
         # (no items in list are ' ')
-        return [None]
-
+        for i in range(3):
+            for j in range(3):
+                if self.Board[i][j] == ' ':
+                    return [None]
+        return ['draw', "nobody"]
 
     def game_play(self, computer):
         """This describes the play of the game"""
@@ -138,8 +177,8 @@ class Game(object):
                 self.print_grid()
                 print 'Player {} wins!!!\n\n'.format(self.player_turn)
                 return
-
-
+            elif check == 'draw':
+                print "Draw game!  Nobody wins."
             self.player_turn = 'O' if self.player_turn=='X' else 'X'
 
     def play(self):
