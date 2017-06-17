@@ -42,10 +42,10 @@ __credits__ = ['Brett Holman']
 class Game(object):
     ''' This game defines the game of tic tac toe. '''
     def __init__(self):
-        self.Board=[[' ' for i in range(3)] for i in range(3)]
+        self.Board = [[' ' for i in range(3)] for i in range(3)]
         self.player_turn = 'X'
-        self.default_player='2'
-
+        self.default_player = '2'
+        self.default_difficulty = '2'
     def print_grid(self):
         """Clears out the screen and Prints out the formatted grid."""
         res = subprocess.check_output(['clear'])
@@ -87,6 +87,7 @@ class Game(object):
 
     def interpret_input(self, input, user, computer):
         """ Validates user input and calls the write_piece function if input is valid """
+        # Indirect recursive calls to get_input
         if len(input)<2:
             print 'Too few characters entered.  Try again.'
             self.get_input(user, computer)
@@ -95,40 +96,48 @@ class Game(object):
             self.get_input(user, computer)
         elif not set(input)<=set('abc123'):
             print 'Wrong type of character entered.  Only the characters \'abc123\' are allowed.'
-            self.get_input(user, computer )
+            self.get_input(user, computer)
+        elif 'a' not in input and 'b' not in input and 'c' not in input:
+            print 'Input requires a letter'
+            self.get_input(user, computer)
+        elif '1' not in input and '2' not in input and '3' not in input:
+            print 'Input requires a number'
+            self.get_input(user, computer)
 
-        if('a'in input):
-            if '1' in input:
-                self.write_piece(0, 0, user, computer)
-            elif '2' in input:
-                self.write_piece(1, 0, user, computer)
-            elif '3' in input:
-                self.write_piece(2, 0, user, computer)
-                self.Board[2][0] = user
-            else:
-                print 'Logical ERROR in self.interpret_input, NUMBER case not considered'
-
-        elif('b' in input):
-            if '1' in input:
-                self.write_piece(0, 1, user, computer)
-            elif '2' in input:
-                self.write_piece(1, 1, user, computer)
-            elif '3' in input:
-                self.write_piece(2, 1, user, computer)
-            else:
-                print 'Logical ERROR in self.interpret_input, NUMBER case not considered'
-
-        elif('c' in input):
-            if '1' in input:
-                self.write_piece(0, 2, user, computer)
-            elif '2' in input:
-                self.write_piece(1, 2, user, computer)
-            elif '3' in input:
-                self.write_piece(2, 2, user, computer)
-            else:
-                print 'Logical ERROR in self.interpret_input, NUMBER case not considered'
         else:
-            print 'Logical ERROR in self.interpret_input, LETTER case not considered'
+            # Is valid input
+            if('a'in input):
+                if '1' in input:
+                    self.write_piece(0, 0, user, computer)
+                elif '2' in input:
+                    self.write_piece(1, 0, user, computer)
+                elif '3' in input:
+                    self.write_piece(2, 0, user, computer)
+                    self.Board[2][0] = user
+                else:
+                    assert False, 'Logical ERROR in self.interpret_input, NUMBER case not considered'
+
+            elif('b' in input):
+                if '1' in input:
+                    self.write_piece(0, 1, user, computer)
+                elif '2' in input:
+                    self.write_piece(1, 1, user, computer)
+                elif '3' in input:
+                    self.write_piece(2, 1, user, computer)
+                else:
+                    assert False, 'Logical ERROR in self.interpret_input, NUMBER case not considered'
+
+            elif('c' in input):
+                if '1' in input:
+                    self.write_piece(0, 2, user, computer)
+                elif '2' in input:
+                    self.write_piece(1, 2, user, computer)
+                elif '3' in input:
+                    self.write_piece(2, 2, user, computer)
+                else:
+                    assert False, 'Logical ERROR in self.interpret_input, NUMBER case not considered'
+            else:
+                assert False, 'Logical ERROR in self.interpret_input, LETTER case not considered'
 
     def check_board(self, player):
         """ This checkes the board for winners and stalemates"""
@@ -179,6 +188,7 @@ class Game(object):
                 return
             elif check == 'draw':
                 print "Draw game!  Nobody wins."
+                return
             self.player_turn = 'O' if self.player_turn=='X' else 'X'
 
     def play(self):
@@ -186,10 +196,14 @@ class Game(object):
         while True:
             try:
                 # Human or Machine?
-                response = raw_input("\n\nWhat kind of game would you like to play?[ 2 ]\n 1) 2 Player\n 2) Computer").strip()
+                response = raw_input("\n\nType:\n 1) 2 Player\n 2) Computer\n\n>>[2]").strip()
+
+                # Difficulty?
+                if response == '2':
+                    self.default_difficulty = raw_input('Difficulty: \n1) Easy \n2) Medium \n3) Difficult\n\n>>[2]').strip
 
                 # Default
-                if response =='':
+                if response != '1' and response != '2':
                     response = self.default_player
 
                 # UI Error Handling
@@ -199,7 +213,7 @@ class Game(object):
                     return
 
                 # Play the game!!
-                self.game_play(computer = AI() if (response=='2') else None)
+                self.game_play(computer = AI(self.default_difficulty) if (response=='2') else None)
 
                 # Play again?
                 response = raw_input("Play again? [Y/n]").strip().lower()
@@ -218,11 +232,11 @@ class Game(object):
 
 class AI(object):
     """Randomized computer player.  Literally no strategy going on in this brain."""
-    def __init__(self):
+    def __init__(self, difficulty):
         random.seed()
         self.letters = ['a', 'b', 'c']
-        self.numbers=  ['1','2','3']
-
+        self.numbers =  ['1','2','3']
+        self.difficulty = difficulty
     def turn(self, state):
         """ This randomly selects one of the remaining spots"""
         a = int(random.random()*3)
