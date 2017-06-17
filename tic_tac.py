@@ -271,8 +271,6 @@ class AI(object):
         a = int(random.random()*3)
         b = int(random.random()*3)
         if state[b][a] == ' ':
-            print self.letters[a] + self.numbers[b]
-            time.sleep(1)
             return self.letters[a] + self.numbers[b]
 
         # Only called if the number generator picks a spot that is already full
@@ -321,7 +319,6 @@ class AI(object):
                     if state[i][j] == 'O' and turn == 0:
                         O += 1
                 if X == 2 or O == 2:
-                    time.sleep(1)
                     for j in range(3):
                         if state[i][j] == ' ':
                             return self.letters[j] + self.numbers[i]
@@ -336,7 +333,6 @@ class AI(object):
                     if state[i][j] == 'O' and turn == 0:
                         O += 1
                 if X == 2 or O == 2:
-                    time.sleep(1)
                     for i in range(3):
                         if state[i][j] == ' ':
                             return self.letters[j] + self.numbers[i]
