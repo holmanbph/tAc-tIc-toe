@@ -42,13 +42,17 @@ __copyright__ = 'Copyright (c) 2017 Brett Holman'
 __status__ = 'Prototype'
 __credits__ = ['Brett Holman']
 
+
 class Game(object):
     ''' This game defines the game of tic tac toe. '''
+
     def __init__(self):
         self.Board = [[' ' for i in range(3)] for i in range(3)]
         self.player_turn = 'X'
         self.default_player = '2'
         self.default_difficulty = '2'
+
+
     def print_grid(self):
         """Clears out the screen and Prints out the formatted grid."""
         res = subprocess.check_output(['clear'])
@@ -88,6 +92,7 @@ class Game(object):
             print "That spot is taken, SUCKA!!"
             self.get_input(user, computer)
 
+
     def interpret_input(self, input, user, computer):
         """ Validates user input and calls the write_piece function if input is valid """
         # Indirect recursive calls to get_input
@@ -106,7 +111,6 @@ class Game(object):
         elif '1' not in input and '2' not in input and '3' not in input:
             print 'Input requires a number'
             self.get_input(user, computer)
-
         else:
             # Is valid input
             if('a'in input):
@@ -141,6 +145,7 @@ class Game(object):
                     assert False, 'Logical ERROR in self.interpret_input, NUMBER case not considered'
             else:
                 assert False, 'Logical ERROR in self.interpret_input, LETTER case not considered'
+
 
     def check_board(self, player):
         """ This checkes the board for winners and stalemates"""
@@ -195,6 +200,7 @@ class Game(object):
                 return
             self.player_turn = 'O' if self.player_turn=='X' else 'X'
 
+
     def play(self):
         """User options selection.  This includes game setup and teardown"""
         while True:
@@ -239,12 +245,15 @@ class Game(object):
 
 class AI(object):
     """Randomized computer player.  Literally no strategy going on in this brain."""
+
     def __init__(self, difficulty, turn):
         random.seed()
         self.letters = ['a', 'b', 'c']
         self.numbers =  ['1','2','3']
         self.difficulty = difficulty
         self.player_turn = turn
+
+
     def turn(self, state, turn):
         time.sleep(1)
         if self.difficulty == '1':
@@ -253,6 +262,7 @@ class AI(object):
             return self.manual(state, turn)
         else:
             return self.Monte(state, turn)
+
 
     def rand(self, state, turn):
         """ This randomly selects one of the remaining spots"""
@@ -263,6 +273,7 @@ class AI(object):
 
         # Only called if the number generator picks a spot that is already full
         return self.turn(state)
+
 
     def manual(self, state, turn):
         strategy = self.thinking(state, turn)
