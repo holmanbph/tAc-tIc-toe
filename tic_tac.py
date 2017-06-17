@@ -279,6 +279,7 @@ class AI(object):
     def Monte(self, state, turn):
         return self.manual(state, turn)
 
+
     def count_to_two(self, state):
         '''This checks for places where the opponent has two pieces taken in a row and places in the third spot if available'''
         X = O = 0
