@@ -73,7 +73,7 @@ class Game(object):
                 user_input = str(raw_input('{}\'s Turn: '.format( user ))).strip().lower()
                 self.interpret_input(user_input, user, computer)
             else:
-                self.interpret_input(computer.turn(self.Board), user, computer)
+                self.interpret_input(computer.turn(self.Board, self.player_turn), user, computer)
 
 
     def write_piece(self, y, x, user, computer):
@@ -196,7 +196,10 @@ class Game(object):
         while True:
             try:
                 # Human or Machine?
-                response = raw_input("\n\nType:\n 1) 2 Player\n 2) Computer\n\n>>[2]").strip()
+                res = subprocess.check_output(['clear'])
+                for i in res.split():
+                    print i
+                response = raw_input("\n\nGame Type:\n 1) 2 Player\n 2) Computer\n\n>>[2]").strip()
 
                 # Difficulty?
                 if response == '2':
@@ -213,7 +216,7 @@ class Game(object):
                     return
 
                 # Play the game!!
-                self.game_play(computer = AI(self.default_difficulty) if (response=='2') else None)
+                self.game_play(computer = AI(self.default_difficulty, self.player_turn) if (response=='2') else None)
 
                 # Play again?
                 response = raw_input("Play again? [Y/n]").strip().lower()
@@ -232,12 +235,21 @@ class Game(object):
 
 class AI(object):
     """Randomized computer player.  Literally no strategy going on in this brain."""
-    def __init__(self, difficulty):
+    def __init__(self, difficulty, turn):
         random.seed()
         self.letters = ['a', 'b', 'c']
         self.numbers =  ['1','2','3']
         self.difficulty = difficulty
-    def turn(self, state):
+        self.player_turn = turn
+    def turn(self, state, turn):
+        if self.difficulty == '1':
+            return self.rand(state, turn)
+        elif self.difficulty == '2':
+            return self.manual(state, turn)
+        else:
+            return self.Monte(state, turn)
+
+    def rand(self, state, turn):
         """ This randomly selects one of the remaining spots"""
         a = int(random.random()*3)
         b = int(random.random()*3)
@@ -248,6 +260,71 @@ class AI(object):
 
         # Only called if the number generator picks a spot that is already full
         return self.turn(state)
+
+    def manual(self, state, turn):
+        strategy = self.thinking(state, turn)
+        if strategy:
+            return strategy
+        a = int(random.random()*3)
+        b = int(random.random()*3)
+        if state[b][a] == ' ':
+            print self.letters[a] + self.numbers[b]
+            time.sleep(1)
+            return self.letters[a] + self.numbers[b]
+
+        # Only called if the number generator picks a spot that is already full
+        return self.turn(state, turn)
+
+
+    def Monte(self, state, turn):
+        return self.manual(state, turn)
+
+    def count_to_two(self, state):
+        '''This checks for places where the opponent has two pieces taken in a row and places in the third spot if available'''
+        X = O = 0
+
+        # This is the horizontal checker
+        for i in range(3):
+            for j in range(3):
+                if state[i][j] == 'X':
+                    X += 1
+                if state[i][j] == 'O':
+                    O += 1
+            if X == 2 or O == 2:
+                print 'yay strategy'
+                time.sleep(1)
+                for j in range(3):
+                    if state[i][j] == ' ':
+                        return [j, i]
+            else:
+                X = O = 0
+
+        # This is the vertical checker
+        for j in range(3):
+            for i in range(3):
+                if state[i][j] == 'X':
+                    X += 1
+                if state[i][j] == 'O':
+                    O += 1
+            if X == 2 or O == 2:
+                print 'yay strategy'
+                time.sleep(1)
+                for j in range(3):
+                    if state[i][j] == ' ':
+                        return [j, i]
+            else:
+                X = O = 0
+
+
+    def thinking(self, state, turn):
+        '''Checks to see if the opponent will win in the next turn, moves to block'''
+
+        # Check if the opponent will win
+        coordinates = self.count_to_two(state)
+
+        if coordinates == None:
+            return None
+        return self.letters[coordinates[0]] + self.numbers[coordinates[1]]
 
 if __name__ == "__main__":
     tic_tac = Game()
