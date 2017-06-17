@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-"""The design of the game was not given much thought, I'm trying to throw something together that can be used for 'AI' experimentation. This game was not originally object oriented; there are some interesting design quirks. The goal is to allow PvP and PvComputer game modes, and to focus on learning some 'simple' AI methods (perhaps using a tool like tensorflow)?
+"""The design of the game was not given much thought, I'm trying to throw something together that can
+be used for 'AI' experimentation. This game was not originally object oriented; there are some interesting
+design quirks. The goal is to allow PvP and PvComputer game modes, and to focus on learning some 'simple'
+AI methods (perhaps using a tool like tensorflow)?
 
 
 To play:
@@ -153,14 +156,14 @@ class Game(object):
                 if self.Board[i][0] == ' ':
                     return [None]
                 return ['winner', player]
-        if (self.Board[0][0]==self.Board[1][1]==self.Board[2][2]):
-            if self.Board[1][1] == ' ':
-                return [None]
-            return ['winner', player]
-        elif (self.Board[0][2]==self.Board[1][1]==self.Board[2][0]):
-            if self.Board[1][1] == ' ':
-                return [None]
-            return ['winner', player]
+            if (self.Board[0][0]==self.Board[1][1]==self.Board[2][2]):
+                if self.Board[1][1] == ' ':
+                    return [None]
+                return ['winner', player]
+            elif (self.Board[0][2]==self.Board[1][1]==self.Board[2][0]):
+                if self.Board[1][1] == ' ':
+                    return [None]
+                return ['winner', player]
 
         # Board is full; no one wins
         # (no items in list are ' ')
@@ -169,6 +172,7 @@ class Game(object):
                 if self.Board[i][j] == ' ':
                     return [None]
         return ['draw', "nobody"]
+
 
     def game_play(self, computer):
         """This describes the play of the game"""
@@ -242,6 +246,7 @@ class AI(object):
         self.difficulty = difficulty
         self.player_turn = turn
     def turn(self, state, turn):
+        time.sleep(1)
         if self.difficulty == '1':
             return self.rand(state, turn)
         elif self.difficulty == '2':
@@ -254,8 +259,6 @@ class AI(object):
         a = int(random.random()*3)
         b = int(random.random()*3)
         if state[b][a] == ' ':
-            print self.letters[a] + self.numbers[b]
-            time.sleep(1)
             return self.letters[a] + self.numbers[b]
 
         # Only called if the number generator picks a spot that is already full
@@ -277,55 +280,71 @@ class AI(object):
 
 
     def Monte(self, state, turn):
+        '''This is where the real fun will begin.  All other 'computer' components are NOT AI, this is where the fun will begin'''
         return self.manual(state, turn)
 
 
-    def count_to_two(self, state):
-        '''This checks for places where the opponent has two pieces taken in a row and places in the third spot if available'''
-        X = O = 0
-
-        # This is the horizontal checker
-        for i in range(3):
-            for j in range(3):
-                if state[i][j] == 'X':
-                    X += 1
-                if state[i][j] == 'O':
-                    O += 1
-            if X == 2 or O == 2:
-                print 'yay strategy'
-                time.sleep(1)
-                for j in range(3):
-                    if state[i][j] == ' ':
-                        return [j, i]
-            else:
-                X = O = 0
-
-        # This is the vertical checker
-        for j in range(3):
-            for i in range(3):
-                if state[i][j] == 'X':
-                    X += 1
-                if state[i][j] == 'O':
-                    O += 1
-            if X == 2 or O == 2:
-                print 'yay strategy'
-                time.sleep(1)
-                for j in range(3):
-                    if state[i][j] == ' ':
-                        return [j, i]
-            else:
-                X = O = 0
-
-
     def thinking(self, state, turn):
-        '''Checks to see if the opponent will win in the next turn, moves to block'''
+        '''This checks for places where the opponent has two pieces taken in a row and places in the third spot if available'''
 
-        # Check if the opponent will win
-        coordinates = self.count_to_two(state)
+        # This is for checking diagonally
+        if state[0][0]==state[1][1]:
+           if state[2][2] == ' ':
+               return self.letters[2] + self.numbers[2]
+        if state[1][1]==state[2][2]:
+           if state[0][0] == ' ':
+               return self.letters[0] + self.numbers[0]
+        if state[2][2] == state[0][0]:
+           if state[1][1] == ' ':
+               return self.letters[1] + self.numbers[1]
 
-        if coordinates == None:
-            return None
-        return self.letters[coordinates[0]] + self.numbers[coordinates[1]]
+        if state[0][2]==state[1][1]:
+           if state[2][0] == ' ':
+               return self.letters[0] + self.numbers[2]
+        if state[0][2]==state[2][0]:
+           if state[1][1] == ' ':
+                return self.letters[1] + self.numbers[1]
+        if state[1][1]==state[2][0]:
+           if state[0][2] == ' ':
+                return self.letters[2] + self.numbers[0]
+        print '{}\'s turn'.format(turn)
+
+        # Check for the win first
+        for turn in range(2):
+
+            # This is the horizontal checker
+            X = O = 0
+            for i in range(3):
+                for j in range(3):
+                    if state[i][j] == 'X' and turn == 1:
+                        X += 1
+                    if state[i][j] == 'O' and turn == 0:
+                        O += 1
+                if X == 2 or O == 2:
+                    time.sleep(1)
+                    for j in range(3):
+                        if state[i][j] == ' ':
+                            return self.letters[j] + self.numbers[i]
+                else:
+                    X = O = 0
+
+            # This is the vertical checker
+            for j in range(3):
+                for i in range(3):
+                    if state[i][j] == 'X' and turn == 1:
+                        X += 1
+                    if state[i][j] == 'O' and turn == 0:
+                        O += 1
+                if X == 2 or O == 2:
+                    time.sleep(1)
+                    for i in range(3):
+                        if state[i][j] == ' ':
+                            return self.letters[j] + self.numbers[i]
+                else:
+                    X = O = 0
+
+        return None
+
 
 if __name__ == "__main__":
     tic_tac = Game()
