@@ -255,7 +255,6 @@ class AI(object):
 
 
     def turn(self, state, turn):
-        time.sleep(1)
         if self.difficulty == '1':
             return self.rand(state, turn)
         elif self.difficulty == '2':
