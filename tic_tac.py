@@ -95,7 +95,7 @@ class Game(object):
 
     def interpret_input(self, input, user, computer):
         """ Validates user input and calls the write_piece function if input is valid """
-        # Indirect recursive calls to get_input
+        # Recursive tail calls to get_input
         if len(input)<2:
             print 'Too few characters entered.  Try again.'
             self.get_input(user, computer)
@@ -270,7 +270,7 @@ class AI(object):
         if state[b][a] == ' ':
             return self.letters[a] + self.numbers[b]
 
-        # Only called if the number generator picks a spot that is already full
+        # Recursive tail call
         return self.turn(state)
 
 
@@ -282,8 +282,7 @@ class AI(object):
         b = int(random.random()*3)
         if state[b][a] == ' ':
             return self.letters[a] + self.numbers[b]
-
-        # Only called if the number generator picks a spot that is already full
+        # Recursive tail call
         return self.turn(state, turn)
 
 
