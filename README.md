@@ -1,16 +1,12 @@
-# tAc-tIc-toe
+# tic-tac-toe
 
 
-First pass at machine learning using a simple tic tac toe game.
 
-The goal of this project is not a product, but rather a journey.  I am using this 
-project to learn new technology and approaches to problem solving (vim, 
-Tensorflow). 
+The goal of this project is to quickly create a fun interactive game. 
+The code is not clean.  The code is not efficient.  The code is not well documented.  
+The code is tested.  The code was fun to write.  The code is easy to set up.  
 
-"I feel life is less of a movie and more of a novel.  You are not the actor you are 
-the author."
-- Sol
-
-
+$ git clone https://github.com/holmanbph/tic-tac-toe.git;
+$ python tic-tac-toe/tic_tac.py 
 
 
