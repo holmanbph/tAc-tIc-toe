@@ -1,12 +1,9 @@
 # tic-tac-toe
 
-
-
-The goal of this project is to quickly create a fun interactive game. 
+The goal of this project was to quickly create a fun interactive command line game that includes a comptuter player of multiple difficulty levels as well as a two person game. 
 The code is not clean.  The code is not efficient.  The code is not well documented.  
 The code is tested.  The code was fun to write.  The code is easy to set up.  
-```bash
-$ git clone https://github.com/holmanbph/tic-tac-toe.git;
-$ python tic-tac-toe/tic_tac.py 
-```
+
+The code can be downloaded at:
+https://github.com/holmanbph/tic-tac-toe
 
